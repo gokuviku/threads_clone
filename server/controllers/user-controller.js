@@ -204,3 +204,40 @@ exports.updateProfile = async (req, res) => {
     res.status(400).json({ msg: "error signin", err: err.message });
   }
 };
+
+exports.searchUser = async (req, res) => {
+  try {
+    const { query } = req.params;
+    const users = await User.find({
+      $or: [
+        { username: { $regex: query, $options: "i" } },
+        { email: { $regex: query, $options: "i" } },
+      ],
+    });
+    res.status(200).json({ users, msg: "Searched!" });
+  } catch (error) {
+    res.status(400).json({ msg: "error searching user.", err: err.message });
+  }
+};
+
+exports.logout = async (req, res) => {
+  try {
+    res.cookie("token", "", {
+      maxAge: Date.now(),
+      httpOnly: true,
+      sameSite: none,
+      secure: true,
+    });
+    res.status(200).json({ msg: "logged out." });
+  } catch (error) {
+    res.status(400).json({ msg: "error logging out.", err: err.message });
+  }
+};
+
+exports.myInfo = async (req, res) => {
+  try {
+    res.status(200).json({ me: req.user });
+  } catch (error) {
+    res.status(400).json({ msg: "error logging out.", err: err.message });
+  }
+};
