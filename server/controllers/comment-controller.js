@@ -54,7 +54,7 @@ exports.deleteComment = async (req, res) => {
         message: "Post not found",
       });
     }
-    const commentExists = await Post.findById(id);
+    const commentExists = await Comment.findById(id);
     if (!commentExists) {
       return res.status(400).json({ message: "Comment not found" });
     }
