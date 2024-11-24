@@ -27,25 +27,25 @@ const userSchema = new mongoose.Schema(
     },
     followers: [
       {
-        types: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
     ],
     threads: [
       {
-        types: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Post",
       },
     ],
     replies: [
       {
-        types: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Comment",
       },
     ],
     repost: [
       {
-        types: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Post",
       },
     ],

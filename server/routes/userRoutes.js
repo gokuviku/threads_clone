@@ -4,6 +4,7 @@ const {
   signin,
   login,
   searchUser,
+  logout,
   myInfo,
 } = require("../controllers/user-controller");
 const auth = require("../middlewares/auth");

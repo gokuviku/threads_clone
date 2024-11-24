@@ -19,13 +19,13 @@ export const serviceSlice = createSlice({
       state.openAddPostModal = action.payload;
     },
     editProfileModal: (state, action) => {
-      state.openEditProfileModal = action.payload;
-    },
-    toggleMainMenu: (state, action) => {
       state.anchorE1 = action.payload;
     },
+    toggleMainMenu: (state, action) => {
+      state.openMainMenu = action.payload;
+    },
     toggleMyMenu: (state, action) => {
-      state.anchorE2 = action.payload;
+      state.openMyMenu = action.payload;
     },
     toggleColorMode: (state) => {
       state.darkMode = !state.darkMode;
@@ -36,11 +36,29 @@ export const serviceSlice = createSlice({
     addUser: (state, action) => {
       state.user = action.payload;
     },
-
+    addToAllPost: (state, action) => {
+      const newPostArr = [...action.payload.posts];
+      if (state.allPosts.length === 0) {
+        state.allPosts = newPostArr;
+        return;
+      }
+      const existingPosts = [...state.allPosts];
+      newPostArr.forEach((e) => {
+        const exisitingIndex = existingPosts.findIndex((i) => {
+          return i._id === e._id;
+        });
+        if (exisitingIndex !== -1) {
+          existingPosts[exisitingIndex] = e;
+        } else {
+          existingPosts.push(e);
+        }
+      });
+      state.allPosts = existingPosts;
+    },
     addSingle: (state, action) => {
       let newArr = [...state.allPosts];
       let updatedArr = [action.payload.newPost, ...newArr];
-      let uniqueArr = new Set();
+      uniqueArr = new Set();
       let uniquePosts = updatedArr.filter((e) => {
         if (!uniqueArr.has(e._id)) {
           uniqueArr.add(e);
@@ -50,42 +68,21 @@ export const serviceSlice = createSlice({
       });
       state.allPosts = [...uniquePosts];
     },
-    addToAllPost: (state, action) => {
-      const newPostArr = [...action.payload.posts];
-      if (state.allPosts.length === 0) {
-        state.allPosts = newPostArr;
-        return;
-      }
-      const existingPosts = [...state.allPosts];
-      newPostArr.forEach((e) => {
-        const existingIndex = existingPosts.findIndex((i) => {
-          return i._id === e._id;
-        });
-        if (existingIndex !== -1) {
-          existingPosts[existingIndex] = e;
-        } else {
-          existingPosts.push(e);
-        }
-      });
-      state.allPosts = existingPosts;
-    },
     deleteThePost: (state, action) => {
       let postArr = [...state.allPosts];
       let newArr = postArr.filter((e) => e._id !== state.postId);
       state.allPosts = newArr;
     },
-    addPostId:(state,action)=>{
-      state.postId = action.payload;
-    },
-
     addToSearchedUsers: (state, action) => {
       state.searchedUsers = action.payload;
+    },
+    addPostId: (state, action) => {
+      state.postId = action.payload;
     },
   },
 });
 
 export const {
-  addPostId,
   addPostModal,
   editProfileModal,
   toggleMainMenu,
@@ -93,10 +90,11 @@ export const {
   toggleColorMode,
   addMyInfo,
   addUser,
-  addSingle,
   addToAllPost,
+  addSingle,
   deleteThePost,
   addToSearchedUsers,
+  addPostId,
 } = serviceSlice.actions;
 
 export default serviceSlice.reducer;

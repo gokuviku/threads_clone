@@ -8,3 +8,5 @@ const router = express.Router();
 
 router.post("comment/:id", auth, addComment);
 router.delete("comment/:postId/:id", auth, deleteComment);
+
+module.exports = router;
