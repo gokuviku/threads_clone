@@ -4,14 +4,12 @@ import { addMyInfo, addToAllPost, addUser, deleteThePost } from "./slice";
 export const serviceApi = createApi({
   reducerPath: "serviceApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api/v1/users",
-    credentials: true,
+    baseUrl: `${SERVER_URL}/api/`,
+    credentials: "include",
   }),
   keepUnusedDataFor: 60 * 60 * 24 * 7,
   tagTypes: ["Post", "User", "Me"],
-
   endpoints: (builder) => ({
-    //user
     signin: builder.mutation({
       query: (data) => ({
         url: "signin",
@@ -22,24 +20,24 @@ export const serviceApi = createApi({
     }),
     login: builder.mutation({
       query: (data) => ({
-        method: "POST",
         url: "login",
+        method: "POST",
         body: data,
       }),
-      invalidateTags: ["Me"],
+      invalidatesTags: ["Me"],
     }),
     myInfo: builder.query({
       query: () => ({
         url: "me",
         method: "GET",
       }),
-      invalidateTags: ["Me"],
-      async onQueryStarted(params, { dispatch, queryFullfilled }) {
+      providesTags: ["Me"],
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
-          const { data } = await queryFullfilled;
+          const { data } = await queryFulfilled;
           dispatch(addMyInfo(data));
-        } catch (error) {
-          console.log(error);
+        } catch (err) {
+          console.log(err);
         }
       },
     }),
@@ -48,7 +46,7 @@ export const serviceApi = createApi({
         url: "logout",
         method: "POST",
       }),
-      invalidateTags: ["Me"],
+      invalidatesTags: ["Me"],
     }),
     userDetails: builder.query({
       query: (id) => ({
@@ -86,7 +84,7 @@ export const serviceApi = createApi({
       }),
       invalidatesTags: ["Me"],
     }),
-    // post
+
     addPost: builder.mutation({
       query: (data) => ({
         url: `post`,
@@ -108,7 +106,7 @@ export const serviceApi = createApi({
         url: `post?page=${page}`,
         method: "GET",
       }),
-      provideTags: (result, error, args) => {
+      providesTags: (result) => {
         return result
           ? [
               ...result.posts.map(({ _id }) => ({ type: "Post", id: _id })),
@@ -116,12 +114,12 @@ export const serviceApi = createApi({
             ]
           : [{ type: "Post", id: "LIST" }];
       },
-      async onQueryStarted(params, { dispatch, queryFullfilled }) {
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
-          const { data } = await queryFullfilled;
+          const { data } = await queryFulfilled;
           dispatch(addToAllPost(data));
-        } catch (error) {
-          console.log(error);
+        } catch (err) {
+          console.log(err);
         }
       },
     }),
@@ -134,8 +132,8 @@ export const serviceApi = createApi({
         try {
           const { data } = await queryFulfilled;
           dispatch(deleteThePost(data));
-        } catch (error) {
-          console.log(error);
+        } catch (err) {
+          console.log(err);
         }
       },
     }),
@@ -147,8 +145,10 @@ export const serviceApi = createApi({
       invalidatesTags: (result, error, { id }) => [{ type: "Post", id }],
     }),
     singlePost: builder.query({
-      url: `post/${id}`,
-      method: "GET",
+      query: (id) => ({
+        url: `post/${id}`,
+        method: "GET",
+      }),
       providesTags: (result, error, { id }) => [{ type: "Post", id }],
     }),
     repost: builder.mutation({
@@ -158,30 +158,23 @@ export const serviceApi = createApi({
       }),
       invalidatesTags: ["User"],
     }),
-    //comment
+
     addComment: builder.mutation({
       query: ({ id, ...data }) => ({
-        method: "POST",
         url: `comment/${id}`,
+        method: "POST",
         body: data,
       }),
       invalidatesTags: ["User"],
     }),
     deleteComment: builder.mutation({
-      query: ({ id, postId }) => ({
-        method: "DELETE",
+      query: ({ postId, id }) => ({
         url: `comment/${postId}/${id}`,
+        method: "DELETE",
       }),
       invalidatesTags: (result, error, { postId }) => [
         { type: "Post", id: postId },
       ],
-    }),
-    lazySearchUsers: builder.query({
-      query: (data) => ({
-        method: "GET",
-        url: `/search/${id}`,
-        body: data,
-      }),
     }),
   }),
 });
@@ -192,16 +185,15 @@ export const {
   useMyInfoQuery,
   useLogoutMeMutation,
   useUserDetailsQuery,
-  useSearchUsersQuery,
-  useFollowUserMutation,
-  useUpdateProfileMutation,
+  useLazySearchUsersQuery,
   useAllPostQuery,
+  useFollowUserMutation,
+  useAddCommentMutation,
   useAddPostMutation,
-  useSinglePostQuery,
+  useDeleteCommentMutation,
   useDeletePostMutation,
   useLikePostMutation,
   useRepostMutation,
-  useAddCommentMutation,
-  useDeleteCommentMutation,
-  useLazySearchUsersQuery,
+  useSinglePostQuery,
+  useUpdateProfileMutation,
 } = serviceApi;
